@@ -1,0 +1,14 @@
+{
+"integration_key": "c285f6c4-9ded-4d72-6a4f-d3b764db66f4.us",
+"stream": "pendo_integration_visitor",
+"key_properties": ["platform_user_public_id"],
+"primary_key": "visitorId",
+"replication_method": "FULL_TABLE",
+"replication_key": ["last_updated"],
+"bookmark_type": "datetime",
+"reserved_field_overrides": {
+    "visitorId": "platform_user_public_id",
+    "platform_account_id": "platform_account_id",
+    "sgaccountowner": "sg_account_owner"
+    }
+}
