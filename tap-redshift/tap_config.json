@@ -1,10 +1,10 @@
 {
-    "host": "127.0.0.1",
-    "port": "5439",
-    "dbname": "dev",
-    "user": "singer_reader",
-    "password": "ZyMm8s6u.GMrxxsrp!cp*2D!*42Mv6CVCUXvyBxf",
+    "host": "",
+    "port": "",
+    "dbname": "",
+    "user": "",
+    "password": "",
     "start_date": "2000-01-01T00:00:00Z",
-    "schema": "public",
-    "target_integration_key": "c285f6c4-9ded-4d72-6a4f-d3b764db66f4.us"
+    "schema": "",
+    "target_integration_key": ""
 }
