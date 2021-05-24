@@ -1,23 +1,25 @@
 # Redshift-Pendo Integration
 
+![image](https://user-images.githubusercontent.com/74749648/119345883-17ac1280-bc5f-11eb-92b2-ea3b28db919c.png)
+
 ETL pipeline to extract data from Redshift data warehouse and batch stream requests to Pendo.io RESTful API to be consumed and joined on Pendo Accounts/Visitors data, allowing for better insights & user experiences;  Built upon the Singer.io open-source ETL framework (development in Python); Leveraged an asynchronous HTTP Client to stream up to 2,500 records (~3MB)/second to Pendo; Capable of both full-table replication and incremental data loads; Deployed via EC2 instance.
+
+Singer Redshift Tap: Extracts data from Redshift data warehouse and writes it to a standard stream in a JSON-based format, which can be piped to-and consumed by-any target.
+
+Singer Pendo Target: Consumes JSON-based standard stream data from the Redshift Tap (or any other tap) and communicates with the Pendo API to set or update Pendo attributes in accordance with this incoming data.
 
 ## Singer Basics
 
 **Tap**: Application that takes a configuration file and an optional state file as input and produces an ordered stream of record, state, & schema messages as output.
 
-- **Record Message**: JSON-encoded data of any kind.
-- **State Message**: Used to persist information between invocations of a Tap.
-- **Schema Message**: Describes the datatypes of the records in the stream.
+* **Record Message**: JSON-encoded data of any kind.
+* **State Message**: Used to persist information between invocations of a Tap.
+* **Schema Message**: Describes the datatypes of the records in the stream.
 
-Pendo Target Request Parameters
-
-Data Stores	
-Visitors: General information on all 
-visitors Pendo has ever seen.
-Accounts: General information on all accounts Pendo has ever seen.
-Events: Each interaction with your application by a visitor (click, page 
-load, metadata, guide events)
+### Pendo Entities ###
+* Visitors: General information on all visitors Pendo has ever seen.
+* Accounts: General information on all accounts Pendo has ever seen.
+* Events: Each interaction with your application by a visitor (click, page load, metadata, guide events)
 
 Method
 POST
@@ -46,32 +48,27 @@ Failed number = Sum of length(missing) + length(errors).
 **Rate Limits & Service Protection API Limits**
 Pendo API allows for any number of records to be submitted for update, but the call is limited to five (5) minutes. Any calls that take longer will violate this service protection API Limit and result in a 408 Request Timeout.
 
-Tap tap-redshift
+# tap-redshift #
 
-description
-Tap that extracts data from Redshift data warehouse and writes it to a standard stream in a JSON-based format, which can be piped to-and consumed by-any target.
-
-arguments
-
-		configuration file
-o	description: contains required credentials and database connection properties for the tap.
-o	filetype: JSON
-o	arg options: (-c, --config)
+arguments configuration file
+* description: contains required credentials and database connection properties for the tap.
+* filetype: JSON
+* arg options: (-c, --config)
 
 catalog file
-o	description: contains a list of stream objects that correspond to each available table in the Redshift schema designated in your config file.
-o	filetype: JSON
-o	arg options: (--catalog)
+* description: contains a list of stream objects that correspond to each available table in the Redshift schema designated in your config file.
+* filetype: JSON
+* arg options: (--catalog)
 
 
 dependencies
-Connection to Redshift
-Python 3.6+.
+* Connection to Redshift
+* Python 3.6+
 
 discovery mode
 ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift --config tap_rs_config.json -d
 
-Target target-pendo
+# target-pendo #
 
 description
 Takes sys.stdout stream piped from tap as sys.stdin stream…config file with ___
@@ -102,7 +99,7 @@ dependencies
 - Pendo Admin access credentials may create custom fields via Data Mappings page in Pendo.
 
 
-Initial Requirements
+## Initial Requirements ##
 
 1.	Updates Pendo Visitor/Accounts Custom Fields with any source attribute(s)
 2.	Performs Full-Replication
@@ -114,27 +111,19 @@ Initial Requirements
 8.	Notifies on Failure - Triggers SNS Topic Alert to DAE team Topic in AWS upon failure to prompt a response and troubleshooting
 9.	Adjusts for Runtime Limits
 
-I want to be able to Rate Limit API calls/sessions so that API Service ___ are not violated leading to diminished service and thus data health, and so I can complete the large jobs required for initial full replication by staying within rate limit bounds and moving a stream of s-sized chunks across n-batches until the job is complete
-
-
-No Matching Key in Pendo?
+## No Matching Key in Pendo? ##
 Pendo will only push data into matching objects. It will not create new records in Pendo. If no matching record is found the data will not push to Pendo.
 
-Add Custom Fields to Be Pushed to Pendo**
+**Add Custom Fields to Be Pushed to Pendo**
 Data types must match for custom field mappings the account/visitor object
  
 tap-redshift REQUIREMENTS target-pendo
 
-
-1) Singer Redshift Tap: Extracts data from Redshift data warehouse and writes it to a standard stream in a JSON-based format, which can be piped to-and consumed by-any target.
-
-Singer Pendo Target: Consumes JSON-based standard stream data from the Redshift Tap (or any other tap) and communicates with the Pendo API to set or update Pendo attributes in accordance with this incoming data.
-
 1. Any attribute that lives inside a Redshift source table may be pushed into the Pendo Account or Visitor objects with a 1:1 primary key match and pre-existing Custom Field Mapping in Pendo
 
-3) Supports Scheduled Runs: Runs on a scheduled basis, detecting which records have been added, deleted, or changed, and inserts, updates, or deletes the corresponding data in the corresponding Pendo tables.
+2. Supports Scheduled Runs: Runs on a scheduled basis, detecting which records have been added, deleted, or changed, and inserts, updates, or deletes the corresponding data in the corresponding Pendo tables.
 
-4) Supports Full Replication
+3. Supports Full Replication
 
 1.	Extracts all data from the source table each time the tap is invoked without a state file.
 2.	Supports Incremental Replication: ability to incrementally update custom attributes in Pendo So that synchronization time and risk exposure are minimized with each run.
@@ -145,8 +134,8 @@ Singer Pendo Target: Consumes JSON-based standard stream data from the Redshift 
 7.	Idempotent; Not at risk of record corruption, Mistake Tolerant; PUT/POST requests with redundant payload will not insert duplicates.
 
 **EXAMPLE: INITIAL FULL REPLICATION**
-sudo ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift --config tap_rs_config.json --catalog catalog_full_rep.json | /Users/kbonilla/.virtualenvs/target-pendo/src/target-pendo/target_pendo --config target_config.json > state.json
 
+	sudo ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift --config tap_rs_config.json --catalog catalog_full_rep.json | /Users/kbonilla/.virtualenvs/target-pendo/src/target-pendo/target_pendo --config target_config.json > state.json
 
 The tap can be invoked in discovery mode to get the available tables and columns in the database
 $ tap-redshift --config config.json -d
@@ -172,18 +161,19 @@ Step 4: Sync your data
 FULL_TABLE replication is used by default.
 
 Example:
-"metadata": [
-    {
-        "breadcrumb": [],
-        "metadata": {
-            "selected": true,
-            "selected-by-default": false,
-            "replication-method": "INCREMENTAL",
-            "replication-key": "updated_at",
-            ...
-        }
-    }
-]
+
+	{	"metadata": [
+    		{
+			"breadcrumb": [],
+			"metadata": {
+			    "selected": true,
+			    "selected-by-default": false,
+			    "replication-method": "INCREMENTAL",
+			    "replication-key": "updated_at",
+			    ...
+			}
+		    }
+		]
 
 Can now Invoke the tap again in sync mode. This time the output will have STATE message that contains a replication_key_value and bookmark for data that was extracted.
 
@@ -206,59 +196,56 @@ The state.json file should look like;
 
 For subsequent runs, can invoke the incremental replication by passing the latest state in order to limit data only to what has been modified since the last execution.
 
-EXAMPLE: INCREMENTAL REPLICATION
-tail -1 state.json > latest-state.json; \
-tap-redshift \
-    -c config-redshift.json \
-    --catalog catalog.json \
-        -s latest-state.json | \
-            target-pendo -c config.json > state.json
+**EXAMPLE: INCREMENTAL REPLICATION**
+
+	tail -1 state.json > latest-state.json; \
+		tap-redshift \
+		    -c config-redshift.json \
+		    --catalog catalog.json \
+			-s latest-state.json | \
+			    target-pendo -c config.json > state.json
 
 # Catalog discovery
-discover:
+discover:	
+
     tap-redshift \
         -c config-redshift.json -d > catalog.json
 
 sync:
-    tail -1 state.json > latest-state.json; \
-    tap-redshift \
-      -c config-redshift.json \
-      --catalog catalog.json \
-      -s latest-state.json | \
-        target-pendo -c config-dw.json > state.json
+
+	tail -1 state.json > latest-state.json; \
+		tap-redshift \
+			-c config-redshift.json \
+	      			--catalog catalog.json \
+	     	 			-s latest-state.json | \
+						target-pendo -c config-dw.json > state.json
 
 
 Retry Operations
 Service protection API limit errors will return a Retry-After Duration value indicating the duration before any new requests from the user can be processed.
 
-Interactive application retries
-If the client is an interactive application, you should display a message that the server is busy while you re-try the request the user made. You may want to provide an option for the user to cancel the operation. Don't allow users to submit more requests until the previous request you sent has completed.
-
-
-INFO METRIC: 
-{"type": "counter", 
-"metric": "record_count", "value": 331207, 
-"tags": {"database": null, "table": "public.pendo_integration_account"}}
-
-{"type": "ACTIVATE_VERSION", 
-"stream": "pendo_integration_account", "version": 1614185051899}
-
-{"type": "STATE", 
-"value": {"currently_syncing": "dev.public.pendo_integration_account", "bookmarks": {"dev.public.pendo_integration_account": {"version": null}}}}
 
 INFO METRIC:
-{"type": "timer", 
-"metric": "job_duration", "value": 27.544612169265747, 
-"tags": {"job_type": "sync_table", "database": null, "table": "public.pendo_integration_account", "status": "succeeded"}}
 
-{"type": "STATE", 
-"value": {"currently_syncing": null, 
-"bookmarks": {"dev.public.pendo_integration_account": {"version": null}}}}
+	{"type": "counter", 
+	"metric": "record_count", "value": 331207, 
+	"tags": {"database": null, "table": "public.pendo_integration_account"}}
 
-## Pylint
-target_pendo/__init__.py:
-•	disable=W0105,W1201,W1203,W0511,W0640,R0903,R0912,R0915,R0914,R1702,C0103
+	{"type": "ACTIVATE_VERSION", 
+	"stream": "pendo_integration_account", "version": 1614185051899}
 
+	{"type": "STATE", 
+	"value": {"currently_syncing": "dev.public.pendo_integration_account", "bookmarks": {"dev.public.pendo_integration_account": {"version": null}}}}
+
+INFO METRIC:
+
+	{"type": "timer", 
+	"metric": "job_duration", "value": 27.544612169265747, 
+	"tags": {"job_type": "sync_table", "database": null, "table": "public.pendo_integration_account", "status": "succeeded"}}
+
+	{"type": "STATE", 
+	"value": {"currently_syncing": null, 
+	"bookmarks": {"dev.public.pendo_integration_account": {"version": null}}}}
 
 
 ## Changelog
@@ -267,24 +254,24 @@ An idiosyncratic feature of Foreground’s Tap-Redshift-Target-Pendo Singer Inte
 
 **EXAMPLE: INITIAL FULL REPLICATION**
 
-sudo ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift --config tap_rs_config.json --catalog catalog.json | /Users/kbonilla/.virtualenvs/target-pendo/src/target-pendo/target_pendo --config target_config.json > state.json
+	sudo ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift --config tap_rs_config.json --catalog catalog.json | /Users/kbonilla/.virtualenvs/target-pendo/src/target-pendo/target_pendo --config target_config.json > state.json
 
 Redirect output from tap's discovery mode to a file to be modified when the tap is next invoked in sync mode.
 To run tap in discovery mode and copy output into a catalog.json file:
 $ tap-redshift -c config.json -d > catalog.json
 
-Select the tables you want to sync
+Select the tables you want to sync:
 
-tap-redshift -c tap_config.json --catalog catalog.json | target-pendo -c target_config.json > state.json
+	tap-redshift -c tap_config.json --catalog catalog.json | target-pendo -c target_config.json > state.json 
+	
 
 Sync your data
 
 Can now Invoke the tap again in sync mode. This time the output will have STATE message that contains a replication_key_value and bookmark for data that was extracted.
-
 Redirect the output to a state.json file. Normally, the target will echo the last STATE after it has finished processing data.
 
-Example
-The state.json file should look like;
+**Example**
+The state.json file should look like:
 {
     "currently_syncing": null,
     "bookmarks": {
@@ -307,19 +294,13 @@ tap-redshift -c tap_config.json --catalog catalog.json -s latest-state.json | ta
 4.	cd Github/data-and-analytics/singer/tap-redshift/tap-redshift
 5.	sudo ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift -c tap_config.json --catalog catalog.json
 
-sudo ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift -c tap_config.json --catalog catalog.json | ~/.virtualenvs/target-pendo/bin/target-pendo -c target_config.json
+
+	sudo ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift -c tap_config.json --catalog catalog.json | ~/.virtualenvs/target-pendo/bin/target-pendo -c target_config.json
 
 sudo ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift -c tap_config.json --catalog catalog3.json | ~/.virtualenvs/target-pendo/bin/target-pendo -c target_config.json
 
-
 rate-limits, but not a prob unless concurrency, multithread pooling for
 Pendo ID update
-
-tap-redshift
-Singer tap that extracts data from a Redshift database and produces JSON-formatted data following the Singer spec.
-
-Usage
-tap-redshift assumes you have a connection to Redshift and requires Python 3.6+.
 
 ## Step 1: Create a configuration file
 When you install tap-redshift, you need to create a config.json file for the database connection.
@@ -333,19 +314,20 @@ user
 password
 start_date (Notation: yyyy-mm-ddThh:mm:ssZ)
 And an optional attribute;
-
 schema
-Example:
 
-{
-    "host": "REDSHIFT_HOST",
-    "port": "REDSHIFT_PORT",
-    "dbname": "REDSHIFT_DBNAME",
-    "user": "REDSHIFT_USER",
-    "password": "REDSHIFT_PASSWORD",
-    "start_date": "REDSHIFT_START_DATE",
-    "schema": "REDSHIFT_SCHEMA"
-}
+**Example:**
+
+	{
+	    "host": "REDSHIFT_HOST",
+	    "port": "REDSHIFT_PORT",
+	    "dbname": "REDSHIFT_DBNAME",
+	    "user": "REDSHIFT_USER",
+	    "password": "REDSHIFT_PASSWORD",
+	    "start_date": "REDSHIFT_START_DATE",
+	    "schema": "REDSHIFT_SCHEMA"
+	}
+
 ## Step 2: Discover what can be extracted from Redshift
 The tap can be invoked in discovery mode to get the available tables and columns in the database. It points to the config file created to connect to redshift:
 
@@ -361,93 +343,93 @@ A catalog contains a list of stream objects, one for each table available in you
 
 Example:
 
-{
-    "streams": [
-        {
-            "tap_stream_id": "sample-dbname.public.sample-name",
-            "stream": "sample-stream",
-            "database_name": "sample-dbname",
-            "table_name": "public.sample-name"
-            "schema": {
-                "properties": {
-                    "id": {
-                        "minimum": -2147483648,
-                        "inclusion": "automatic",
-                        "maximum": 2147483647,
-                        "type": [
-                            "null",
-                            "integer"
-                        ]
-                    },
-                    "name": {
-                        "maxLength": 255,
-                        "inclusion": "available",
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "updated_at": {
-                        "inclusion": "available",
-                        "type": [
-                            "string"
-                        ],
-                        "format": "date-time"
-                    },
-                },
-                "type": "object"
-            },
-            "metadata": [
-                {
-                    "metadata": {
-                        "selected-by-default": false,
-                        "selected": true,
-                        "is-view": false,
-                        "table-key-properties": ["id"],
-                        "schema-name": "sample-stream",
-                        "valid-replication-keys": [
-                            "updated_at"
-                        ]
-                    },
-                    "breadcrumb": [],
-                },
-                {
-                    "metadata": {
-                        "selected-by-default": true,
-                        "sql-datatype": "int2",
-                        "inclusion": "automatic"
-                    },
-                    "breadcrumb": [
-                        "properties",
-                        "id"
-                    ]
-                },
-                {
-                    "metadata": {
-                        "selected-by-default": true,
-                        "sql-datatype": "varchar",
-                        "inclusion": "available"
-                    },
-                    "breadcrumb": [
-                        "properties",
-                        "name"
-                    ]
-                },
-                {
-                    "metadata": {
-                        "selected-by-default": true,
-                        "sql-datatype": "datetime",
-                        "inclusion": "available",
-                    },
-                    "breadcrumb": [
-                        "properties",
-                        "updated_at"
-                    ]
-                }
-            ]
-        }
-    ]
-}
+	{
+	    "streams": [
+		{
+		    "tap_stream_id": "sample-dbname.public.sample-name",
+		    "stream": "sample-stream",
+		    "database_name": "sample-dbname",
+		    "table_name": "public.sample-name"
+		    "schema": {
+			"properties": {
+			    "id": {
+				"minimum": -2147483648,
+				"inclusion": "automatic",
+				"maximum": 2147483647,
+				"type": [
+				    "null",
+				    "integer"
+				]
+			    },
+			    "name": {
+				"maxLength": 255,
+				"inclusion": "available",
+				"type": [
+				    "null",
+				    "string"
+				]
+			    },
+			    "updated_at": {
+				"inclusion": "available",
+				"type": [
+				    "string"
+				],
+				"format": "date-time"
+			    },
+			},
+			"type": "object"
+		    },
+		    "metadata": [
+			{
+			    "metadata": {
+				"selected-by-default": false,
+				"selected": true,
+				"is-view": false,
+				"table-key-properties": ["id"],
+				"schema-name": "sample-stream",
+				"valid-replication-keys": [
+				    "updated_at"
+				]
+			    },
+			    "breadcrumb": [],
+			},
+			{
+			    "metadata": {
+				"selected-by-default": true,
+				"sql-datatype": "int2",
+				"inclusion": "automatic"
+			    },
+			    "breadcrumb": [
+				"properties",
+				"id"
+			    ]
+			},
+			{
+			    "metadata": {
+				"selected-by-default": true,
+				"sql-datatype": "varchar",
+				"inclusion": "available"
+			    },
+			    "breadcrumb": [
+				"properties",
+				"name"
+			    ]
+			},
+			{
+			    "metadata": {
+				"selected-by-default": true,
+				"sql-datatype": "datetime",
+				"inclusion": "available",
+			    },
+			    "breadcrumb": [
+				"properties",
+				"updated_at"
+			    ]
+			}
+		    ]
+		}
+	    ]
+	}
 
 ## Step 3: Select the tables you want to sync
 In sync mode, tap-redshift requires a catalog file to be supplied, where the user must have selected which streams (tables) should be transferred. Streams are not selected by default.
@@ -469,24 +451,22 @@ Example:
 ]
 You can select it by adding "selected": true to its metadata.
 
-Example:
-
-"metadata": [
-    {
-        "breadcrumb": [],
-        "metadata": {
-            "selected": true,
-            "selected-by-default": false,
-            ...
-        }
-    }
-]
+**Example:**
+	{"metadata": [
+	    {
+		"breadcrumb": [],
+		"metadata": {
+		    "selected": true,
+		    "selected-by-default": false,
+		    ...
+		}
+	    }
+	]}
 The tap can then be invoked in sync mode with the properties catalog argument:
 
-Example (paired with target-datadotworld)
-
 tap-redshift -c config.json --catalog catalog.json | target-datadotworld -c config-dw.json
-Step 4: Sync your data
+
+## Step 4: Sync your data ##
 There are two ways to replicate a given table. FULL_TABLE and INCREMENTAL. FULL_TABLE replication is used by default.
 
 Full Table
@@ -499,18 +479,19 @@ To use incremental replication, we need to add the replication_method and replic
 
 Example:
 
-"metadata": [
-    {
-        "breadcrumb": [],
-        "metadata": {
-            "selected": true,
-            "selected-by-default": false,
-            "replication-method": "INCREMENTAL",
-            "replication-key": "updated_at",
-            ...
-        }
-    }
-]
+	{"metadata": [
+	    {
+		"breadcrumb": [],
+		"metadata": {
+		    "selected": true,
+		    "selected-by-default": false,
+		    "replication-method": "INCREMENTAL",
+		    "replication-key": "updated_at",
+		    ...
+		}
+	    }
+	]
+	}
 We can then invoke the tap again in sync mode. This time the output will have STATE messages that contains a replication_key_value and bookmark for data that were extracted.
 
 Redirect the output to a state.json file. Normally, the target will echo the last STATE after it has finished processing data.
@@ -573,7 +554,7 @@ sync:
 	
 	
 ## Updating Directories in EC2 Instance
-• Tap-redshift and target-pendo directories/virtualenvs in EC2 instance are not up to date with the attached code. To update them, ssh into the EC2 instance with ssh@[instance_public_dns] and execute the command below from a separate, local terminal:
+* Tap-redshift and target-pendo directories/virtualenvs in EC2 instance are not up to date with the attached code. To update them, ssh into the EC2 instance with ssh@[instance_public_dns] and execute the command below from a separate, local terminal:
 scp -r [local source path] [ec2-username]@[instance_public_ipv4]:[instance destination path]
 example:
 scp -r ~/.virtualenvs/target-pendo/src /target_pendo/__init__.py \
@@ -581,24 +562,27 @@ kcbonilla@3.16.70.231:~/target-pendo/lib/python3.8/site-packages/target_pendo
 If adding a src directory in the virtualenvs (like in updated code), repeat for the src directory.
 
 ## Running the Tap | Target on EC2 Instance
-• After you ssh into the instance, you can execute the following compound command to run the pipe command for sync.
-• Attached is an example showing this before the most recent updates/mods. The singer messages render much slower in the EC2 instance than locally, but requests move quickly. After replacing the current instance code with the updated code and config files, the integration will be syncing FULL_TABLE replications for both accounts and visitors streams, one after another. The visitors stream usually kicks off toward the end of the accounts stream’s execution, and you will see this in a disruption in the stdout/logging, but it does not prevent the accounts stream from finishing requests.
-example(local, with executables in bin)
+* After you ssh into the instance, you can execute the following compound command to run the pipe command for sync.
+
+* Attached is an example showing this before the most recent updates/mods. The singer messages render much slower in the EC2 instance than locally, but requests move quickly. After replacing the current instance code with the updated code and config files, the integration will be syncing FULL_TABLE replications for both accounts and visitors streams, one after another. The visitors stream usually kicks off toward the end of the accounts stream’s execution, and you will see this in a disruption in the stdout/logging, but it does not prevent the accounts stream from finishing requests.
+
+** example(local, with executables in bin) **
 python3 ~/.virtualenvs/tap-redshift/bin/tap-redshift -c tap_config.json --catalog
 catalog.json | ~/.virtualenvs/target-pendo/bin/target-pendo -c target_config.json \
 --batch_records 500 --request_delay 0.05 -–attempts 3 --verbose > state.json
 
-example(EC2, call package modules)
-source tap-redshift/bin/activate; python3.8 \
-~/tap-redshift/lib/python3.8/site-packages/tap_redshift/__init__.py -c tap_config.json \
---catalog catalog.json | python3.8 \
-~/target-pendo/lib/python3.8/site-packages/target_pendo/__init__.py \
--c target_config.json --batch_records 500 --verbose > state.json
+** example(EC2, call package modules) **
+
+	source tap-redshift/bin/activate; python3.8 \
+		~/tap-redshift/lib/python3.8/site-packages/tap_redshift/__init__.py -c tap_config.json \
+			--catalog catalog.json | python3.8 \
+				~/target-pendo/lib/python3.8/site-packages/target_pendo/__init__.py \
+					-c target_config.json --batch_records 500 --verbose > state.json
 
 
 ## Note on HTTP Client(s)
-• Can swap HTTPX async client with aiohttp async client (most common async client) but requests will not go through without providing something similar to the following for SSL certification:
+* Can swap HTTPX async client with aiohttp async client (most common async client) but requests will not go through without providing something similar to the following for SSL certification:
 ![image](https://user-images.githubusercontent.com/74749648/119345268-45448c00-bc5e-11eb-97bf-e4eef4921617.png)
 
-• You can revert to the synchronous requests client by switching all the async functions back to sync, removing the await keywords and using the client.py module. However, request time will increase 8-10x with a synchronous client.
+* You can revert to the synchronous requests client by switching all the async functions back to sync, removing the await keywords and using the client.py module. However, request time will increase 8-10x with a synchronous client.
 
