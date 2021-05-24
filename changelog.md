@@ -1,4 +1,4 @@
-## Recent Changes (reflected in attached code)
+## Recent Changes
 
 - Created StreamProps class from which stream_dict objects are created for each incoming stream, allowing for aggregation and isolation of stream properties, counts, results, etc. for each stream.
 
