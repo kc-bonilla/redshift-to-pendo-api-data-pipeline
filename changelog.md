@@ -20,15 +20,16 @@
  [console_scripts]
  target-pendo = target_pendo.target_pendo:main__init__:main
  
- 
 * Added verbose and quiet logging options as CLI arguments.
    - The verbose option sets the logging level to DEBUG.
    - The quiet option sets the logging level to WARNING.
    - The default if neither option is provided is INFO.
  
- - Added logger.py module with a SyncLogger class that has a formatted StreamHandler and FileHandler attached to the main logger so that sys.stdout is still shown in the console/terminal, while all logging is also captured and saved as a .log file, named by date.
-- The FileHandler mode is set to append (mode = 'a'), to prevent dates with multiple runs from overwriting logs from an earlier run.
-- Added the directory ~/logs in EC2 home directory (/home/kcbonilla/) to store the logs that are produced by each run. 
+* Added logger.py module with a SyncLogger class that has a formatted StreamHandler and FileHandler attached to the main logger so that sys.stdout is still shown in the console/terminal, while all logging is also captured and saved as a .log file, named by date
+
+* The FileHandler mode is set to append (mode = 'a'), to prevent dates with multiple runs from overwriting logs from an earlier run.
+
+* Added the directory ~/logs in EC2 home directory (/home/kcbonilla/) to store the logs that are produced by each run. 
 
 ## example:
 redshift_pendo_04_24_2021.log
@@ -36,7 +37,10 @@ redshift_pendo_04_24_2021.log
 - Exception handling enhancements/mods
 
 ## TODO
-- Setup of S3 IAM permissions to upload and download from the a given bucket so that config files and/or logfiles can be passed before and after executions.
-- Needs policy/process for emptying ~/tap-redshift/logs/ folder with execution logs in EC2; the log files are hundreds of thousands of lines of text, so they accumulate memory quickly.
-- The last_updated field in Redshift still needs to be made live so that when a user has some attribute change in Redshift, their last_updated field updates to the timestamp of the attribute’s change and incremental syncs can then pick-up just these modifications.
-- Had some trouble getting the executables setup in the EC2 virtualenvs bin folders, so I have been directly calling the __init__.py modules of the tap and target in the pipe command. This shouldn’t be too difficult to fix if you look through the load_entry_points and egg-link info in each virtualenv. They are both configured incorrectly in EC2 right now.
+* Setup of S3 IAM permissions to upload and download from the a given bucket so that config files and/or logfiles can be passed before and after executions.
+
+* Needs policy/process for emptying ~/tap-redshift/logs/ folder with execution logs in EC2; the log files are hundreds of thousands of lines of text, so they accumulate memory quickly.
+
+* The last_updated field in Redshift still needs to be made live so that when a user has some attribute change in Redshift, their last_updated field updates to the timestamp of the attribute’s change and incremental syncs can then pick-up just these modifications.
+
+* Had some trouble getting the executables setup in the EC2 virtualenvs bin folders, so I have been directly calling the __init__.py modules of the tap and target in the pipe command. This shouldn’t be too difficult to fix if you look through the load_entry_points and egg-link info in each virtualenv. They are both configured incorrectly in EC2 right now.
