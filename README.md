@@ -1,30 +1,18 @@
 # data-pipeline-development
 
-Redshift-Pendo Integration
+## Redshift-Pendo Integration
 
 Outbound integration to extract data attributes from our Data Warehouse and pipe it to Pendo Target to be consumed and joined on Pendo Accounts/Visitors data, allowing for better insights & user experiences.
 
-Singer Basics
+### Singer Basics
 
-Tap
-Application that takes a configuration file and 
-an optional state file as input and produces an 
-ordered stream of record, state, & schema 
-messages as output.
+**Tap**: Application that takes a configuration file and an optional state file as input and produces an ordered stream of record, state, & schema messages as output.
 
-
-Record Message
-JSON-encoded data of any kind.
-	State Message
-Used to persist information between invocations of a Tap.
-
-
-
-Schema Message
-Describes the datatypes of the records in the stream.
+- **Record Message**: JSON-encoded data of any kind.
+- **State Message**: Used to persist information between invocations of a Tap.
+- **Schema Message**: Describes the datatypes of the records in the stream.
 
 Pendo Target Request Parameters
-
 
 Data Stores	
 Visitors: General information on all 
@@ -88,9 +76,6 @@ o	filetype: JSON
 o	arg options: (--catalog)
 
 
-venv location
-/Users/kbonilla/.virtualenvs/tap-csv/bin/tap-csv
-
 dependencies
 Connection to Redshift
 Python 3.6+.
@@ -116,6 +101,7 @@ target-pendo/
     └── errors.py
     └── target_pendo.py
 └── setup.py
+
 config file location & content
 target_rs_config.json
 host
@@ -126,18 +112,11 @@ schema**
 
 
 
-
-
-
 *format: (yyyy-mm-ddthh:mm:ssz)
 **optional
 
 dependencies
-	Pendo Admin access credentials may create custom fields via Data Mappings page in Pendo.
-
-
-
-
+- Pendo Admin access credentials may create custom fields via Data Mappings page in Pendo.
 
 
 
@@ -145,32 +124,19 @@ dependencies
 tap-redshift MVP target-pendo
 
 
-
 1.	Updates Pendo Visitor/Accounts Custom Fields with any source attribute(s)
-
-
 2.	Performs Full-Replication
-
-
 3.	Performs Incremental Data Loads
-
-
 4.	Maintains State Between Runs
-
-
 5.	Versions States and Can Revert to Prior State
+
 Each state saved to S3 bucket in event of need
 For reversion to prior state
 
 6.	Catches Tap Schema Changes
-
-
 7.	Allows for Monitored Job Runs/Job Results
-
-
 8.	Notifies on Failure (later)
 Triggers SNS Topic Alert to DAE team Topic in AWS upon failure to prompt a response and troubleshooting
-
 9.	Adjusts for Runtime Limits
 I want to be able to Rate Limit API calls/sessions so that API Service ___ are not violated leading to diminished service and thus data health, and so I can complete the large jobs required for initial full replication by staying within rate limit bounds and moving a stream of s-sized chunks across n-batches until the job is complete
 
@@ -337,15 +303,6 @@ Interactive application retries
 If the client is an interactive application, you should display a message that the server is busy while you re-try the request the user made. You may want to provide an option for the user to cancel the operation. Don't allow users to submit more requests until the previous request you sent has completed.
 
 
-
-
-
-
-
-
-
-
-
 INFO METRIC: 
 {"type": "counter", 
 "metric": "record_count", "value": 331207, 
@@ -386,18 +343,8 @@ target_pendo/__init__.py:
 Changelog
 
 
-
-
 An idiosyncratic feature of Foreground’s Tap-Redshift-Target-Pendo Singer Integration is a POST request (althgouh resembling a GET request) made on the Tap-Redshift side (in sync.py) that utilizes the Pendo Aggregation API that allows us to query all Foreground Pendo Accounts/Visitors for those having UUID-formatted IDs. This indicates that the Account/Visitor has been active since a shift toward UUIDs was enacted in the Pendo Snippet and drastically reduces the Accounts/Visitor IDs to be queried from Redshift before updating that IDs associated attributes in Pendo.
  
-
-
-
-
-
-
-
-
 
 
 
