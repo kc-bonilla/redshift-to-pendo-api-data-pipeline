@@ -71,9 +71,6 @@ dependencies
 
 # target-pendo #
 
-description
-Takes sys.stdout stream piped from tap as sys.stdin stream…config file with ___
-
 compilation folder structure
 target-pendo/
 ├── target_pendo/     <-- Python package with source code
@@ -84,8 +81,7 @@ target-pendo/
     └── target_pendo.py
 └── setup.py
 
-config file location & content
-target_rs_config.json
+
 host
 port
 dbname	user password
@@ -150,7 +146,7 @@ To run tap in discovery mode and copy output into a catalog.json file:
 
 	$ tap-redshift -c config.json -d > catalog.json
 
-Step 3: Select the tables you want to sync
+## Step 3: Select the tables you want to sync
 In sync mode, tap-redshift requires a catalog file to be supplied, where the user must have selected which streams (tables) should be transferred. Streams are not selected by default.
 
 For each stream in the catalog, find the metadata section. That is the section you will modify to select the stream and, optionally, individual properties too.
@@ -338,12 +334,12 @@ schema
 ## Step 2: Discover what can be extracted from Redshift
 The tap can be invoked in discovery mode to get the available tables and columns in the database. It points to the config file created to connect to redshift:
 
-$ tap-redshift --config config.json -d
+	$ tap-redshift --config config.json -d
 A full catalog tap is written to stdout, with a JSON-schema description of each table. A source table directly corresponds to a Singer stream.
 
 Redirect output from the tap's discovery mode to a file so that it can be modified when the tap is to be invoked in sync mode.
 
-$ tap-redshift -c config.json -d > catalog.json
+	$ tap-redshift -c config.json -d > catalog.json
 This runs the tap in discovery mode and copies the output into a catalog.json file.
 
 A catalog contains a list of stream objects, one for each table available in your Redshift schema.
@@ -445,21 +441,22 @@ For each stream in the catalog, find the metadata section. That is the section y
 
 The stream itself is represented by an empty breadcrumb.
 
-Example:
+**Example:**
 
-"metadata": [
-    {
-        "breadcrumb": [],
-        "metadata": {
-            "selected-by-default": false,
-            ...
-        }
-    }
-]
+	"metadata": [
+	    {
+		"breadcrumb": [],
+		"metadata": {
+		    "selected-by-default": false,
+		    ...
+		}
+	    }
+	]
 You can select it by adding "selected": true to its metadata.
 
 **Example:**
-	{"metadata": [
+
+	"metadata": [
 	    {
 		"breadcrumb": [],
 		"metadata": {
@@ -468,25 +465,26 @@ You can select it by adding "selected": true to its metadata.
 		    ...
 		}
 	    }
-	]}
+	]
+
 The tap can then be invoked in sync mode with the properties catalog argument:
 
-tap-redshift -c config.json --catalog catalog.json | target-datadotworld -c config-dw.json
+	tap-redshift -c config.json --catalog catalog.json | target-datadotworld -c config-dw.json
 
-## Step 4: Sync your data ##
+## Step 4: Sync your data
 There are two ways to replicate a given table. FULL_TABLE and INCREMENTAL. FULL_TABLE replication is used by default.
 
-Full Table
+**Full Table**
 Full-table replication extracts all data from the source table each time the tap is invoked without a state file.
 
-Incremental
+**Incremental**
 Incremental replication works in conjunction with a state file to only extract new records each time the tap is invoked i.e continue from the last synced data.
 
 To use incremental replication, we need to add the replication_method and replication_key to the streams (tables) metadata in the catalog.json file.
 
 Example:
 
-	{"metadata": [
+	"metadata": [
 	    {
 		"breadcrumb": [],
 		"metadata": {
@@ -498,37 +496,39 @@ Example:
 		}
 	    }
 	]
-	}
+	
 We can then invoke the tap again in sync mode. This time the output will have STATE messages that contains a replication_key_value and bookmark for data that were extracted.
 
 Redirect the output to a state.json file. Normally, the target will echo the last STATE after it has finished processing data.
 
 Run the code below to pass the state into a state.json file.
 
-Example:
+**Example:**
 
-tap-redshift -c config.json --catalog catalog.json | \
-    target-datadotworld -c config-dw.json > state.json
-The state.json file should look like;
+	tap-redshift -c config.json --catalog catalog.json | \
+	    target-datadotworld -c config-dw.json > state.json
+    
+The state.json file should look like:
 
-{
-    "currently_syncing": null,
-    "bookmarks": {
-        "sample-dbname.public.sample-name": {
-            "replication_key": "updated_at",
-            "version": 1516304171710,
-            "replication_key_value": "2013-10-29T09:38:41.341Z"
-        }
-    }
-}
+	{
+	    "currently_syncing": null,
+	    "bookmarks": {
+		"sample-dbname.public.sample-name": {
+		    "replication_key": "updated_at",
+		    "version": 1516304171710,
+		    "replication_key_value": "2013-10-29T09:38:41.341Z"
+		}
+	    }
+	}
 For subsequent runs, you can then invoke the incremental replication passing the latest state in order to limit data only to what has been modified since the last execution.
 
-tail -1 state.json > latest-state.json; \
-tap-redshift \
-    -c config-redshift.json \
-    --catalog catalog.json \
-        -s latest-state.json | \
-            target-datadotworld -c config-dw.json > state.json
+	tail -1 state.json > latest-state.json; \
+	tap-redshift \
+	    -c config-redshift.json \
+	    --catalog catalog.json \
+		-s latest-state.json | \
+		    target-datadotworld -c config-dw.json > state.json
+		    
 All steps in one Makefile
 For your convenience, all the steps mentioned above are captured in the Makefile below. This example uses target-datadotworld but can be modified to use any other Singer target.
 
