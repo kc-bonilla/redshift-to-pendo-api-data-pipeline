@@ -4,9 +4,9 @@
 
 ETL pipeline to extract data from Redshift data warehouse and batch stream requests to Pendo.io RESTful API to be consumed and joined on Pendo Accounts/Visitors data, allowing for better insights & user experiences;  Built upon the Singer.io open-source ETL framework (development in Python); Leveraged an asynchronous HTTP Client to stream up to 2,500 records (~3MB)/second to Pendo; Capable of both full-table replication and incremental data loads; Deployed via EC2 instance.
 
-Singer Redshift Tap: Extracts data from Redshift data warehouse and writes it to a standard stream in a JSON-based format, which can be piped to-and consumed by-any target.
+**Redshift Tap:** Extracts data from Redshift data warehouse and writes it to a standard stream in a JSON-based format, which can be piped to-and consumed by-any target.
 
-Singer Pendo Target: Consumes JSON-based standard stream data from the Redshift Tap (or any other tap) and communicates with the Pendo API to set or update Pendo attributes in accordance with this incoming data.
+**Pendo Target:** Consumes JSON-based standard stream data from the Redshift Tap (or any other tap) and communicates with the Pendo API to set or update Pendo attributes in accordance with this incoming data.
 
 ## Singer Basics
 
@@ -16,10 +16,10 @@ Singer Pendo Target: Consumes JSON-based standard stream data from the Redshift 
 * **State Message**: Used to persist information between invocations of a Tap.
 * **Schema Message**: Describes the datatypes of the records in the stream.
 
-### Pendo Entities ###
-* Visitors: General information on all visitors Pendo has ever seen.
-* Accounts: General information on all accounts Pendo has ever seen.
-* Events: Each interaction with your application by a visitor (click, page load, metadata, guide events)
+### Pendo Entities
+* **Visitors**: General information on all visitors Pendo has ever seen.
+* **Accounts**: General information on all accounts Pendo has ever seen.
+* **Events**: Each interaction with your application by a visitor (click, page load, metadata, guide events)
 
 Method
 POST
@@ -65,8 +65,9 @@ dependencies
 * Connection to Redshift
 * Python 3.6+
 
-discovery mode
-~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift --config tap_rs_config.json -d
+## discovery mode
+
+	~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift --config tap_rs_config.json -d
 
 # target-pendo #
 
@@ -138,13 +139,16 @@ tap-redshift REQUIREMENTS target-pendo
 	sudo ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift --config tap_rs_config.json --catalog catalog_full_rep.json | /Users/kbonilla/.virtualenvs/target-pendo/src/target-pendo/target_pendo --config target_config.json > state.json
 
 The tap can be invoked in discovery mode to get the available tables and columns in the database
-$ tap-redshift --config config.json -d
+
+	$ tap-redshift --config config.json -d
+
 A full catalog tap is written to stdout, with a JSON-schema description of each table. 
 Each source table directly corresponds to a Singer stream.
 
 Redirect output from tap's discovery mode to a file to be modified when the tap is next invoked in sync mode.
 To run tap in discovery mode and copy output into a catalog.json file:
-$ tap-redshift -c config.json -d > catalog.json
+
+	$ tap-redshift -c config.json -d > catalog.json
 
 Step 3: Select the tables you want to sync
 In sync mode, tap-redshift requires a catalog file to be supplied, where the user must have selected which streams (tables) should be transferred. Streams are not selected by default.
@@ -155,12 +159,13 @@ The stream itself is represented by an empty “breadcrumb” object.
 You can select it by adding "selected": true to its metadata.
 
 The tap can then be invoked in sync mode with the properties catalog argument:
-tap-redshift -c config.json --catalog catalog.json | target-pendo -c config-dw.json
+
+	tap-redshift -c config.json --catalog catalog.json | target-pendo -c config-dw.json
 
 Step 4: Sync your data
 FULL_TABLE replication is used by default.
 
-Example:
+**Example:**
 
 	{	"metadata": [
     		{
@@ -176,23 +181,25 @@ Example:
 		]
 
 Can now Invoke the tap again in sync mode. This time the output will have STATE message that contains a replication_key_value and bookmark for data that was extracted.
-
 Redirect the output to a state.json file. Normally, the target will echo the last STATE after it has finished processing data.
 
-Example
-tap-redshift -c config.json --catalog catalog.json | \
-    target-pendo -c config-dw.json > state.json
-The state.json file should look like;
-{
-    "currently_syncing": null,
-    "bookmarks": {
-        "sample-dbname.public.sample-name": {
-            "replication_key": "updated_at",
-            "version": 1516304171710,
-            "replication_key_value": "2013-10-29T09:38:41.341Z"
-        }
-    }
-}
+**Example**
+
+	tap-redshift -c config.json --catalog catalog.json | \
+		target-pendo -c config-dw.json > state.json
+
+The state.json file should look like:
+
+	{
+	    "currently_syncing": null,
+	    "bookmarks": {
+		"sample-dbname.public.sample-name": {
+		    "replication_key": "updated_at",
+		    "version": 1516304171710,
+		    "replication_key_value": "2013-10-29T09:38:41.341Z"
+		}
+	    }
+	}
 
 For subsequent runs, can invoke the incremental replication by passing the latest state in order to limit data only to what has been modified since the last execution.
 
