@@ -598,5 +598,7 @@ source tap-redshift/bin/activate; python3.8 \
 
 ## Note on HTTP Client(s)
 • Can swap HTTPX async client with aiohttp async client (most common async client) but requests will not go through without providing something similar to the following for SSL certification:
+![image](https://user-images.githubusercontent.com/74749648/119345268-45448c00-bc5e-11eb-97bf-e4eef4921617.png)
+
 • You can revert to the synchronous requests client by switching all the async functions back to sync, removing the await keywords and using the client.py module. However, request time will increase 8-10x with a synchronous client.
 
