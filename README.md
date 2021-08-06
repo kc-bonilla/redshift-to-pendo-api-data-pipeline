@@ -141,7 +141,7 @@ tap-redshift REQUIREMENTS target-pendo
 7.	Idempotent; Not at risk of record corruption, Mistake Tolerant; PUT/POST requests with redundant payload will not insert duplicates.
 
 
-**EXAMPLE: INITIAL FULL REPLICATION
+#### EXAMPLE: INITIAL FULL REPLICATION ####
 
 	sudo ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift --config tap_rs_config.json --catalog catalog_full_rep.json | /Users/kbonilla/.virtualenvs/target-pendo/src/target-pendo/target_pendo --config target_config.json > state.json
 
