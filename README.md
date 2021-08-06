@@ -10,8 +10,10 @@ ETL pipeline to extract data from Redshift data warehouse and batch stream reque
 
 ## Singer Basics
 
-**Tap**: Application that takes a configuration file and an optional state file as input and produces an ordered stream of record, state, & schema messages as output.
+Singer, developed by Stitch, is an open source tool that helps deal with the messy world of custom ETL scripts. Singer is set up to allow users to mix and match inputs and outputs, making their ETL processes much more modular, and therefore easier to run and maintain. It’s also designed to use JSON to move all data between sources and destinations, so you won’t have to worry about incompatible formats once you’ve set your ETL tasks up to run. So how does Singer do all this? Basically, it breaks traditional ETL scripts into Taps and Targets, described below:
 
+* **Taps**: Taps are data extraction scripts, designed to pull data from files, databases and APIs. Taps take a configuration file and an optional state file as input and produces an ordered stream of record, state, & schema messages as output.
+* **Targets**: Targets are data loading scripts, designed to take the data extracted by Taps and move it along to their target destination
 * **Record Message**: JSON-encoded data of any kind.
 * **State Message**: Used to persist information between invocations of a Tap.
 * **Schema Message**: Describes the datatypes of the records in the stream.
