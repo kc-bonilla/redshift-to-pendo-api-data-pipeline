@@ -24,6 +24,8 @@ Singer, developed by Stitch, is an open source tool that helps deal with the mes
 * **Accounts**: General information on all accounts Pendo has ever seen.
 * **Events**: Each interaction with your application by a visitor (click, page load, metadata, guide events)
 
+## Pendo Target: API Features
+
 #### Method
 POST
 
