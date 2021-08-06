@@ -18,7 +18,8 @@ Singer, developed by Stitch, is an open source tool that helps deal with the mes
 * **State Message**: Used to persist information between invocations of a Tap.
 * **Schema Message**: Describes the datatypes of the records in the stream.
 
-### Pendo Entities
+
+## Pendo Entities
 * **Visitors**: General information on all visitors Pendo has ever seen.
 * **Accounts**: General information on all accounts Pendo has ever seen.
 * **Events**: Each interaction with your application by a visitor (click, page load, metadata, guide events)
