@@ -8,6 +8,7 @@ ETL pipeline to extract data from Redshift data warehouse and batch stream reque
 
 **Pendo Target:** Consumes JSON-based standard stream data from the Redshift Tap (or any other tap) and communicates with the Pendo API to set or update Pendo attributes in accordance with this incoming data.
 
+
 ## Singer Basics
 
 Singer, developed by Stitch, is an open source tool that helps deal with the messy world of custom ETL scripts. Singer is set up to allow users to mix and match inputs and outputs, making their ETL processes much more modular, and therefore easier to run and maintain. It’s also designed to use JSON to move all data between sources and destinations, so you won’t have to worry about incompatible formats once you’ve set your ETL tasks up to run. So how does Singer do all this? Basically, it breaks traditional ETL scripts into Taps and Targets, described below:
@@ -52,6 +53,8 @@ Failed number = Sum of length(missing) + length(errors).
 
 #### Rate Limits & Service Protection API Limits
 Pendo API allows for any number of records to be submitted for update, but the call is limited to five (5) minutes. Any calls that take longer will violate this service protection API Limit and result in a 408 Request Timeout.
+
+
 
 ## tap-redshift
 
@@ -113,6 +116,7 @@ target-pendo/
 8.	Notifies on Failure - Triggers SNS Topic Alert to DAE team Topic in AWS upon failure to prompt a response and troubleshooting
 9.	Adjusts for Runtime Limits
 
+
 ## No Matching Key in Pendo? ##
 Pendo will only push data into matching objects. It will not create new records in Pendo. If no matching record is found the data will not push to Pendo.
 
@@ -134,6 +138,7 @@ tap-redshift REQUIREMENTS target-pendo
 5.	Detects Schema Changes in Source Data, Updates Stream Catalog Accordingly
 6.	Taps detect schema changes in source databases and target connectors alter the destination tables automatically. Based on the schema change type:
 7.	Idempotent; Not at risk of record corruption, Mistake Tolerant; PUT/POST requests with redundant payload will not insert duplicates.
+
 
 **EXAMPLE: INITIAL FULL REPLICATION**
 
