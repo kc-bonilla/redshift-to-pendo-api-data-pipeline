@@ -21,66 +21,65 @@ ETL pipeline to extract data from Redshift data warehouse and batch stream reque
 * **Accounts**: General information on all accounts Pendo has ever seen.
 * **Events**: Each interaction with your application by a visitor (click, page load, metadata, guide events)
 
-**Method**
+#### Method
 POST
 
-**URI**
+#### URI
 /api/v1/metadata/{kind}/{group}/value
 
-**Parameters**
+#### Parameters
 kind - "visitor" or "account"
 group - type of metadata field: agent or custom
 
-**Data**
+#### Data
 JSON array (see example format)	Request Headers
 content-type: application/json
 x-pendo-integration-key: <PENDO_INTEGRATION_KEY>
 
-**Status Codes**
+#### Status Codes
 200: The bulk update completed.
 400: The format is unacceptable due to malformed JSON or missing field mappings.
 408: The call took too long and timed out.
 
-**Attributes**
+#### Attributes
 Total number = Sum of updated + failed.
 Failed number = Sum of length(missing) + length(errors).
 
-**Rate Limits & Service Protection API Limits**
+#### Rate Limits & Service Protection API Limits
 Pendo API allows for any number of records to be submitted for update, but the call is limited to five (5) minutes. Any calls that take longer will violate this service protection API Limit and result in a 408 Request Timeout.
 
-# tap-redshift #
+## tap-redshift
 
-**configuration file**
+### configuration file
 * description: the fields required for the Redshift connection config file are specified here.
 * filetype: JSON
 * arg options: (-c, --config)
 
-{
-  "host": "aws.something.or.other",
-  "port": 5439,
-  "dbname": "my_analytics",
-  "user_password": "myuser",
-  "start_date": "1234",
-  "schema": "mytapname",
-  }
-}
+	{
+		"host": "aws.something.or.other",
+		"port": 5439,
+		"dbname": "my_analytics",
+		"user_password": "myuser",
+		"start_date": "1234",
+		"schema": "mytapname"
+	}
 
-**catalog file**
+### catalog file
 * description: contains a list of stream objects that correspond to each available table in the Redshift schema designated in your config file.
 * filetype: JSON
 * arg options: (--catalog)
 
-**dependencies**
+### dependencies
 * Connection to Redshift
 * Python 3.6+
 
-## discovery mode
+### discovery mode
 
 	~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift --config tap_rs_config.json -d
 
-# target-pendo #
+## target-pendo
 
-compilation folder structure
+### compilation folder structure
 target-pendo/
 ├── target_pendo/     <-- Python package with source code
     └── target_pendo.py
