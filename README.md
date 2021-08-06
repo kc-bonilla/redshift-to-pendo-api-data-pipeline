@@ -141,7 +141,7 @@ tap-redshift REQUIREMENTS target-pendo
 7.	Idempotent; Not at risk of record corruption, Mistake Tolerant; PUT/POST requests with redundant payload will not insert duplicates.
 
 
-**EXAMPLE: INITIAL FULL REPLICATION**
+**EXAMPLE: INITIAL FULL REPLICATION
 
 	sudo ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift --config tap_rs_config.json --catalog catalog_full_rep.json | /Users/kbonilla/.virtualenvs/target-pendo/src/target-pendo/target_pendo --config target_config.json > state.json
 
@@ -157,7 +157,7 @@ To run tap in discovery mode and copy output into a catalog.json file:
 
 	$ tap-redshift -c config.json -d > catalog.json
 
-## Step 3: Select the tables you want to sync
+### Step 3: Select the tables you want to sync
 In sync mode, tap-redshift requires a catalog file to be supplied, where the user must have selected which streams (tables) should be transferred. Streams are not selected by default.
 
 For each stream in the catalog, find the metadata section. That is the section you will modify to select the stream and, optionally, individual properties too.
@@ -169,7 +169,7 @@ The tap can then be invoked in sync mode with the properties catalog argument:
 
 	tap-redshift -c config.json --catalog catalog.json | target-pendo -c config-dw.json
 
-Step 4: Sync your data
+### Step 4: Sync your data
 FULL_TABLE replication is used by default.
 
 ### EXAMPLE
