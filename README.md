@@ -21,10 +21,10 @@ ETL pipeline to extract data from Redshift data warehouse and batch stream reque
 * **Accounts**: General information on all accounts Pendo has ever seen.
 * **Events**: Each interaction with your application by a visitor (click, page load, metadata, guide events)
 
-Method
+**Method**
 POST
 
-URI
+**URI**
 /api/v1/metadata/{kind}/{group}/value
 
 **Parameters**
