@@ -482,7 +482,7 @@ The tap can then be invoked in sync mode with the properties catalog argument:
 
 	tap-redshift -c config.json --catalog catalog.json | target-datadotworld -c config-dw.json
 
-## Step 4: Sync your data
+### Step 4: Sync your data
 There are two ways to replicate a given table. FULL_TABLE and INCREMENTAL. FULL_TABLE replication is used by default.
 
 **Full Table**
