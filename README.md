@@ -50,18 +50,27 @@ Pendo API allows for any number of records to be submitted for update, but the c
 
 # tap-redshift #
 
-arguments configuration file
-* description: contains required credentials and database connection properties for the tap.
+**configuration file**
+* description: the fields required for the Redshift connection config file are specified here.
 * filetype: JSON
 * arg options: (-c, --config)
 
-catalog file
+{
+  "host": "aws.something.or.other",
+  "port": 5439,
+  "dbname": "my_analytics",
+  "user_password": "myuser",
+  "start_date": "1234",
+  "schema": "mytapname",
+  }
+}
+
+**catalog file**
 * description: contains a list of stream objects that correspond to each available table in the Redshift schema designated in your config file.
 * filetype: JSON
 * arg options: (--catalog)
 
-
-dependencies
+**dependencies**
 * Connection to Redshift
 * Python 3.6+
 
@@ -81,18 +90,10 @@ target-pendo/
     └── target_pendo.py
 └── setup.py
 
-
-host
-port
-dbname	user password
-start_date* 
-schema**
-
-
 *format: (yyyy-mm-ddthh:mm:ssz)
 **optional
 
-dependencies
+**dependencies**
 - Pendo Admin access credentials may create custom fields via Data Mappings page in Pendo.
 
 
