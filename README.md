@@ -104,7 +104,7 @@ target-pendo/
 - Pendo Admin access credentials may create custom fields via Data Mappings page in Pendo.
 
 
-## Initial Requirements ##
+### Initial Requirements
 
 1.	Updates Pendo Visitor/Accounts Custom Fields with any source attribute(s)
 2.	Performs Full-Replication
@@ -117,10 +117,11 @@ target-pendo/
 9.	Adjusts for Runtime Limits
 
 
-## No Matching Key in Pendo? ##
+### No Matching Key in Pendo?
 Pendo will only push data into matching objects. It will not create new records in Pendo. If no matching record is found the data will not push to Pendo.
 
-**Add Custom Fields to Be Pushed to Pendo**
+
+### Add Custom Fields to Be Pushed to Pendo
 Data types must match for custom field mappings the account/visitor object
  
 tap-redshift REQUIREMENTS target-pendo
@@ -171,7 +172,7 @@ The tap can then be invoked in sync mode with the properties catalog argument:
 Step 4: Sync your data
 FULL_TABLE replication is used by default.
 
-**Example:**
+### EXAMPLE
 
 	{	"metadata": [
     		{
@@ -189,7 +190,7 @@ FULL_TABLE replication is used by default.
 Can now Invoke the tap again in sync mode. This time the output will have STATE message that contains a replication_key_value and bookmark for data that was extracted.
 Redirect the output to a state.json file. Normally, the target will echo the last STATE after it has finished processing data.
 
-**Example**
+### EXAMPLE
 
 	tap-redshift -c config.json --catalog catalog.json | \
 		target-pendo -c config-dw.json > state.json
@@ -209,7 +210,7 @@ The state.json file should look like:
 
 For subsequent runs, can invoke the incremental replication by passing the latest state in order to limit data only to what has been modified since the last execution.
 
-**EXAMPLE: INCREMENTAL REPLICATION**
+### EXAMPLE: INCREMENTAL REPLICATION
 
 	tail -1 state.json > latest-state.json; \
 		tap-redshift \
@@ -218,7 +219,7 @@ For subsequent runs, can invoke the incremental replication by passing the lates
 			-s latest-state.json | \
 			    target-pendo -c config.json > state.json
 
-# Catalog discovery
+### Catalog discovery
 discover:	
 
     tap-redshift \
@@ -261,11 +262,11 @@ INFO METRIC:
 	"bookmarks": {"dev.public.pendo_integration_account": {"version": null}}}}
 
 
-## Changelog
+### Changelog
 An idiosyncratic feature of Foreground’s Tap-Redshift-Target-Pendo Singer Integration is a POST request (althgouh resembling a GET request) made on the Tap-Redshift side (in sync.py) that utilizes the Pendo Aggregation API that allows us to query all Foreground Pendo Accounts/Visitors for those having UUID-formatted IDs. This indicates that the Account/Visitor has been active since a shift toward UUIDs was enacted in the Pendo Snippet and drastically reduces the Accounts/Visitor IDs to be queried from Redshift before updating that IDs associated attributes in Pendo.
  
 
-**EXAMPLE: INITIAL FULL REPLICATION**
+### EXAMPLE: INITIAL FULL REPLICATION
 
 	sudo ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshift --config tap_rs_config.json --catalog catalog.json | /Users/kbonilla/.virtualenvs/target-pendo/src/target-pendo/target_pendo --config target_config.json > state.json
 
@@ -283,7 +284,7 @@ Sync your data
 Can now Invoke the tap again in sync mode. This time the output will have STATE message that contains a replication_key_value and bookmark for data that was extracted.
 Redirect the output to a state.json file. Normally, the target will echo the last STATE after it has finished processing data.
 
-**Example**
+### EXAMPLE
 The state.json file should look like:
 {
     "currently_syncing": null,
@@ -315,7 +316,7 @@ sudo ~/Github/data-and-analytics/singer/tap-redshift/tap-redshift/bin/tap-redshi
 rate-limits, but not a prob unless concurrency, multithread pooling for
 Pendo ID update
 
-## Step 1: Create a configuration file
+### Step 1: Create a configuration file
 When you install tap-redshift, you need to create a config.json file for the database connection.
 
 The json file requires the following attributes;
@@ -329,7 +330,7 @@ start_date (Notation: yyyy-mm-ddThh:mm:ssZ)
 And an optional attribute;
 schema
 
-**Example:**
+### EXAMPLE
 
 	{
 	    "host": "REDSHIFT_HOST",
@@ -341,7 +342,7 @@ schema
 	    "schema": "REDSHIFT_SCHEMA"
 	}
 
-## Step 2: Discover what can be extracted from Redshift
+### Step 2: Discover what can be extracted from Redshift
 The tap can be invoked in discovery mode to get the available tables and columns in the database. It points to the config file created to connect to redshift:
 
 	$ tap-redshift --config config.json -d
@@ -444,14 +445,14 @@ Example:
 	    ]
 	}
 
-## Step 3: Select the tables you want to sync
+### Step 3: Select the tables you want to sync
 In sync mode, tap-redshift requires a catalog file to be supplied, where the user must have selected which streams (tables) should be transferred. Streams are not selected by default.
 
 For each stream in the catalog, find the metadata section. That is the section you will modify to select the stream and, optionally, individual properties too.
 
 The stream itself is represented by an empty breadcrumb.
 
-**Example:**
+### EXAMPLE
 
 	"metadata": [
 	    {
@@ -464,7 +465,7 @@ The stream itself is represented by an empty breadcrumb.
 	]
 You can select it by adding "selected": true to its metadata.
 
-**Example:**
+### EXAMPLE
 
 	"metadata": [
 	    {
@@ -513,7 +514,7 @@ Redirect the output to a state.json file. Normally, the target will echo the las
 
 Run the code below to pass the state into a state.json file.
 
-**Example:**
+### EXAMPLE
 
 	tap-redshift -c config.json --catalog catalog.json | \
 	    target-datadotworld -c config-dw.json > state.json
@@ -542,24 +543,24 @@ For subsequent runs, you can then invoke the incremental replication passing the
 All steps in one Makefile
 For your convenience, all the steps mentioned above are captured in the Makefile below. This example uses target-datadotworld but can be modified to use any other Singer target.
 
-# Requires python 3.6
+### Requires python 3.6
 install:
     pip3 install tap-redshift; \
     pip3 install target-datadotworld
 
-# Catalog discovery
+### Catalog discovery
 discover:
     tap-redshift \
         -c config-redshift.json -d > catalog.json
 
-# Full sync
+### Full sync
 fullsync:
     tap-redshift \
         -c config-redshift.json \
         --catalog catalog.json | \
             target-datadotworld -c config-dw.json > state.json
 
-# Incremental sync
+### Incremental sync
 sync:
     tail -1 state.json > latest-state.json; \
     tap-redshift \
@@ -570,7 +571,7 @@ sync:
 	
 	
 	
-## Updating Directories in EC2 Instance
+### Updating Directories in EC2 Instance
 * Tap-redshift and target-pendo directories/virtualenvs in EC2 instance are not up to date with the attached code. To update them, ssh into the EC2 instance with ssh@[instance_public_dns] and execute the command below from a separate, local terminal:
 scp -r [local source path] [ec2-username]@[instance_public_ipv4]:[instance destination path]
 example:
@@ -578,7 +579,7 @@ scp -r ~/.virtualenvs/target-pendo/src /target_pendo/__init__.py \
 kcbonilla@3.16.70.231:~/target-pendo/lib/python3.8/site-packages/target_pendo
 If adding a src directory in the virtualenvs (like in updated code), repeat for the src directory.
 
-## Running the Tap | Target on EC2 Instance
+### Running the Tap | Target on EC2 Instance
 * After you ssh into the instance, you can execute the following compound command to run the pipe command for sync.
 
 * Attached is an example showing this before the most recent updates/mods. The singer messages render much slower in the EC2 instance than locally, but requests move quickly. After replacing the current instance code with the updated code and config files, the integration will be syncing FULL_TABLE replications for both accounts and visitors streams, one after another. The visitors stream usually kicks off toward the end of the accounts stream’s execution, and you will see this in a disruption in the stdout/logging, but it does not prevent the accounts stream from finishing requests.
@@ -597,7 +598,7 @@ catalog.json | ~/.virtualenvs/target-pendo/bin/target-pendo -c target_config.jso
 					-c target_config.json --batch_records 500 --verbose > state.json
 
 
-## Note on HTTP Client(s)
+### Note on HTTP Client(s)
 * Can swap HTTPX async client with aiohttp async client (most common async client) but requests will not go through without providing something similar to the following for SSL certification:
 ![image](https://user-images.githubusercontent.com/74749648/119345268-45448c00-bc5e-11eb-97bf-e4eef4921617.png)
 
